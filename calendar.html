@@ -1,0 +1,145 @@
+<html lang="en">
+
+<head>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="semantic/dist/semantic.min.css">
+  <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+  <script src="semantic/dist/semantic.min.js"></script>
+  <script src='node_modules\moment\min\moment.min.js'></script>
+  <link rel='stylesheet' href='node_modules\fullcalendar\dist\fullcalendar.css' />
+  <script src='node_modules\fullcalendar\dist\fullcalendar.js'></script>
+
+  <script>
+    function getClass(){
+      document.getElementById('class').innerHTML = sessionStorage.getItem('class');
+    };
+
+    $(document).ready(function() {
+      var date = new Date();
+      var d = date.getDate();
+      var m = date.getMonth();
+      var y = date.getFullYear();
+
+      var calendar = $('#calendar').fullCalendar({
+        editable: true,
+        header: {
+          left: 'prev,next today',
+          center: 'title',
+          right: 'month,agendaWeek,agendaDay'
+        },
+
+        events: "events.php",
+
+        // Convert the allDay from string to boolean
+        eventRender: function(event, element, view) {
+          if (event.allDay === 'true') {
+            event.allDay = true;
+          } else {
+            event.allDay = false;
+          }
+        },
+        selectable: true,
+        selectHelper: true,
+        /*select: function(start, end, allDay) {
+          var title = prompt('Event Title:');
+          var url = prompt('Type Event url, if exits:');
+          if (title) {
+            var start = $.fullCalendar.formatDate(start, "yyyy-MM-dd HH:mm:ss");
+            var end = $.fullCalendar.formatDate(end, "yyyy-MM-dd HH:mm:ss");
+            $.ajax({
+              url: 'add_events.php',
+              data: 'title=' + title + '&start=' + start + '&end=' + end + '&url=' + url,
+              type: "POST",
+              success: function(json) {
+                alert('Added Successfully');
+              }
+            });
+            calendar.fullCalendar('renderEvent', {
+                title: title,
+                start: start,
+                end: end,
+                allDay: allDay
+              },
+              true // make the event "stick"
+            );
+          }
+          calendar.fullCalendar('unselect');
+        },*/
+
+        editable: true,
+        eventDrop: function(event, delta) {
+          var start = $.fullCalendar.formatDate(event.start, "yyyy-MM-dd HH:mm:ss");
+          var end = $.fullCalendar.formatDate(event.end, "yyyy-MM-dd HH:mm:ss");
+          $.ajax({
+            url: 'update_events.php',
+            data: 'title=' + event.title + '&start=' + start + '&end=' + end + '&id=' + event.id,
+            type: "POST",
+            success: function(json) {
+              alert("Updated Successfully");
+            }
+          });
+        },
+        eventResize: function(event) {
+          var start = $.fullCalendar.formatDate(event.start, "yyyy-MM-dd HH:mm:ss");
+          var end = $.fullCalendar.formatDate(event.end, "yyyy-MM-dd HH:mm:ss");
+          $.ajax({
+            url: 'update_events.php',
+            data: 'title=' + event.title + '&start=' + start + '&end=' + end + '&id=' + event.id,
+            type: "POST",
+            success: function(json) {
+              alert("Updated Successfully");
+            }
+          });
+
+        }
+
+      });
+
+    });
+  </script>
+  <style type="text/css">
+    body {
+      background-color: #2185D0;
+    }
+
+    body>.grid {
+      height: 100%;
+    }
+
+    .image {
+      margin-top: -100px;
+    }
+
+    .column {
+      max-width: 650px;
+    }
+
+    .content {
+      color: white;
+    }
+
+    .new {
+      color: #2185D0;
+    }
+  </style>
+</head>
+
+<body onload="getClass()">
+  <div class="ui middle aligned center aligned grid">
+    <div class="column">
+      <h2 class="ui image header">
+    <img src="images/studiBuddyLogo.png" class="image" style="width:100px">
+    <div class="content">
+      Pick a study group for <span id="class"></span>!
+    </div>
+  </h2>
+      <div class="ui stacked segment">
+        <div id='calendar'></div>
+      </div>
+      <div class="ui message">
+        <span class="new"> No groups fit your schedule? <a href="createGroup.php">Create a group!</a></span>
+      </div>
+    </div>
+</body>
+
+</html>
